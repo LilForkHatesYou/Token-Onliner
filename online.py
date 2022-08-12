@@ -1,17 +1,6 @@
-import json
-import random
-import sys
-import re
-import threading
-import time
-import os
+import json, random, sys, re, threading, time, httpx, os, websocket, fade
 from concurrent.futures import ThreadPoolExecutor
-import websocket
-from colorama import Fore
-from colorama import init, Fore, Back, Style
-
-init(convert=True)
-
+from colr import color
 def online(token, game, type, status):
     ws = websocket.WebSocket()
     if status == "random":
@@ -20,96 +9,38 @@ def online(token, game, type, status):
     ws.connect('wss://gateway.discord.gg/?v=6&encoding=json')
     hello = json.loads(ws.recv())
     heartbeat_interval = hello['d']['heartbeat_interval']
-    if type == "Playing":
-        gamejson = {
-            "name": game,
-            "type": 0
-        }
-    elif type == 'Streaming':
-        gamejson = {
-            "name": game,
-            "type": 1,
-            "url": "https://www.twitch.tv/discord.gg/LilForkTokens"
-        }
-    elif type == "Listening":
-        gamejson = {
-            "name": game,
-            "type": 2
-        }
-    elif type == "Watching":
-        gamejson = {
-            "name": game,
-            "type": 3
-        }
-    auth = {
-        "op": 2,
-        "d": {
-            "token": token,
-            "properties": {
-                "$os": sys.platform,
-                "$browser": "RTB",
-                "$device": f"{sys.platform} Device"
-            },
-            "presence": {
-                "game": gamejson,
-                "status": status,
-                "since": 0,
-                "afk": False
-            }
-        },
-        "s": None,
-        "t": None
-    }
+    if type == "1":
+        gamejson = {"name": game,"type": 0}
+    elif type == '2':
+        gamejson = {"name": game,"type": 1,"url": "https:/twitch.tv/LilFork"}
+    elif type == "4":
+        gamejson = {"name": game,"type": 2}
+    elif type == "3":
+        gamejson = {"name": game,"type": 3}
+    auth = {"op": 2,"d": {"token": token,"properties": {"$os": sys.platform,"$browser": "RTB","$device": f"{sys.platform} Device"},"presence": {"game": gamejson,"status": status,"since": 0,"afk": False}},"s": None,"t": None}
     ws.send(json.dumps(auth))
-    ack = {
-        "op": 1,
-        "d": None
-    }
+    ack = {"op": 1,"d": None}
     while True:
         time.sleep(heartbeat_interval / 1000)
         try:
             ws.send(json.dumps(ack))
         except Exception as e:
             break
-
-
 def main():
-    types = ['Playing', 'Streaming', 'Watching', 'Listening']
-    type = input(f'''
-    
-                                         ██████╗ ██████╗  ██████╗██╗  ██╗
-                                        ██╔════╝██╔═══██╗██╔════╝██║ ██╔╝
-                                        ██║     ██║   ██║██║     █████╔╝ 
-                                        ██║     ██║   ██║██║     ██╔═██╗ 
-                                        ╚██████╗╚██████╔╝╚██████╗██║  ██╗
-                                         ╚═════╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝
-                                 
-
-
-                                Options: Playing | Streaming | Watching | Listening
-    
-Your Choice > ''')
+    type = input(color(f'Options: [1] Playing | [2] Streaming | [3] Watching | [4] Listening\nYour Choice > ', fore='green', style='bright'))
     os.system("cls")
-    game = input(f'''
-    
-                                         ██████╗ ██████╗  ██████╗██╗  ██╗
-                                        ██╔════╝██╔═══██╗██╔════╝██║ ██╔╝
-                                        ██║     ██║   ██║██║     █████╔╝ 
-                                        ██║     ██║   ██║██║     ██╔═██╗ 
-                                        ╚██████╗╚██████╔╝╚██████╗██║  ██╗
-                                         ╚═════╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝
-                                 
-
-
-                                    Info: Type what you want the status to be
-    
-Status > ''')
+    game = input(color(f'Info: Type what you want the status to be\nStatus > ', fore='green', style='bright'))
+    os.system('cls')
     status = ['online', 'dnd', 'idle','random']
     status = status[3]
     executor = ThreadPoolExecutor(max_workers=1000)
-    for token in open("tokens.txt","r+").readlines():
-        threading.Thread(target=lambda : online(token.replace("\n",""), game, type, status)).start()
-    os.system("cls")
-    print(f"{Fore.LIGHTRED_EX}[{Fore.RESET}!{Fore.LIGHTRED_EX}]{Fore.RESET} Tokens Online")
+    while True:
+        for token in open("tokens.txt","r+").readlines():
+            threading.Thread(target=lambda : online(token.replace("\n",""), game, type, status)).start()
+        fart = "[!] Tokens Online"
+        poopcum = fade.random(fart)
+        print(poopcum)
+        time.sleep(60)
+        os.system('cls')
 
 main()
